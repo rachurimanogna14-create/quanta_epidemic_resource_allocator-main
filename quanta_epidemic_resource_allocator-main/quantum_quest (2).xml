@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_build_prompt>
+
+  <project>
+    <name>Quanta Epidemic Resources Allocation</name>
+    <type>Hackathon Prototype</type>
+    <domain>Healthcare, Epidemic Response, Quantum Optimization, Quantum AI</domain>
+    <objective>
+      Build a complete hybrid classical-quantum decision-support system that
+      analyzes epidemic risk and mobility/contact networks, evaluates possible
+      facility locations, and uses QAOA with Qiskit/Aer to select the best
+      combination of exactly five facilities from a larger candidate set.
+    </objective>
+  </project>
+
+  <important_instructions>
+
+    <instruction>
+      Build the project as a fully working prototype, not a collection of
+      placeholder screens or mock buttons.
+    </instruction>
+
+    <instruction>
+      The complete pipeline must work end-to-end:
+      epidemic data → ML risk analysis → network analysis → facility analysis →
+      QUBO → QAOA → facility selection → evaluation → visualization.
+    </instruction>
+
+    <instruction>
+      The ML model must NOT directly select the final facilities. ML is used
+      to estimate epidemic risk and produce information that becomes an input
+      to the optimization problem.
+    </instruction>
+
+    <instruction>
+      The quantum component must genuinely use Qiskit and Qiskit Aer to execute
+      QAOA. Do not simulate QAOA using an ordinary classical optimization
+      algorithm while presenting it as quantum.
+    </instruction>
+
+    <instruction>
+      Do not claim quantum advantage, quantum speedup, or superiority over
+      classical optimization unless the implemented experiments actually
+      demonstrate it.
+    </instruction>
+
+    <instruction>
+      Use synthetic data by default so that the application can run without
+      external datasets. Design the data layer so a public dataset can be
+      substituted later.
+    </instruction>
+
+    <instruction>
+      Do not use arbitrary 4-bit identifiers as the QAOA decision encoding.
+      Facility IDs are metadata. Use one binary decision variable per
+      candidate facility in the optimization model.
+    </instruction>
+
+    <instruction>
+      Keep the project modular and production-quality even though it is a
+      hackathon prototype.
+    </instruction>
+
+  </important_instructions>
+
+
+  <problem_definition>
+
+    <description>
+      During an epidemic, authorities may have many possible locations but
+      limited resources. For example, there may be 20 candidate locations,
+      while only 5 testing, vaccination, isolation, or other epidemic-response
+      facilities can be deployed.
+    </description>
+
+    <goal>
+      Select exactly five facilities that provide the best overall epidemic
+      response considering risk, population, mobility/contact network,
+      accessibility, travel distance, facility capacity, and deployment cost.
+    </goal>
+
+    <key_question>
+      Given all epidemic and facility information and a strict limit of five
+      facilities, which combination of locations provides the best overall
+      coverage and resource allocation?
+    </key_question>
+
+  </problem_definition>
+
+
+  <system_flow>
+
+    <stage number="1" name="Input Data">
+      Load or generate:
+      epidemic data,
+      population data,
+      mobility/contact data,
+      candidate facility data.
+    </stage>
+
+    <stage number="2" name="Classical ML Risk Analysis">
+      Train or load a classical ML model that estimates epidemic risk for
+      each area.
+      Output a normalized risk score between 0 and 1.
+    </stage>
+
+    <stage number="3" name="Network Analysis">
+      Construct a weighted contact/mobility graph.
+      Nodes represent geographical areas.
+      Edges represent movement/contact.
+      Edge weights represent interaction intensity.
+      Calculate useful graph metrics such as weighted degree, centrality,
+      neighboring population, and risk-weighted connectivity.
+    </stage>
+
+    <stage number="4" name="Facility Analysis">
+      Calculate the usefulness of every facility using:
+      risk,
+      population,
+      network connectivity,
+      accessibility,
+      distance,
+      capacity,
+      deployment cost.
+    </stage>
+
+    <stage number="5" name="Candidate Filtering">
+      Remove facilities that are clearly infeasible according to configurable
+      rules such as insufficient capacity, excessive cost, invalid location,
+      or other hard constraints.
+      Do not confuse candidate filtering with final optimization.
+    </stage>
+
+    <stage number="6" name="QUBO">
+      Create one binary decision variable x_i for every eligible facility.
+      x_i = 1 means facility i is selected.
+      x_i = 0 means facility i is not selected.
+    </stage>
+
+    <stage number="7" name="QAOA">
+      Convert the QUBO into the appropriate quantum cost representation and
+      execute QAOA using Qiskit and Qiskit Aer.
+    </stage>
+
+    <stage number="8" name="Decode">
+      Convert the measured bitstring into facility IDs.
+      Identify the best feasible solution.
+    </stage>
+
+    <stage number="9" name="Classical Baseline">
+      Solve the exact same optimization problem using a classical MILP
+      optimizer.
+    </stage>
+
+    <stage number="10" name="Comparison">
+      Compare QAOA and classical results using identical inputs, objectives,
+      weights, and constraints.
+    </stage>
+
+    <stage number="11" name="Visualization">
+      Display all facilities, candidate facilities, QAOA processing,
+      selected facilities, coverage, network effects, and comparison metrics.
+    </stage>
+
+  </system_flow>
+
+
+  <technology_stack>
+
+    <frontend>
+      <framework>React</framework>
+      <requirements>
+        responsive,
+        modern,
+        professional,
+        hackathon-ready,
+        interactive
+      </requirements>
+    </frontend>
+
+    <backend>
+      <language>Python</language>
+      <framework>FastAPI</framework>
+    </backend>
+
+    <machine_learning>
+      <library>scikit-learn</library>
+      <models>
+        Random Forest or Gradient Boosting initially.
+      </models>
+      <fallback>
+        If reliable labeled epidemic data is unavailable, implement a
+        transparent mathematical risk-scoring model and clearly label it as
+        a risk model rather than ML.
+      </fallback>
+    </machine_learning>
+
+    <graph>
+      <library>NetworkX</library>
+    </graph>
+
+    <quantum>
+      <library>Qiskit</library>
+      <simulator>Qiskit Aer</simulator>
+      <algorithm>QAOA</algorithm>
+    </quantum>
+
+    <classical_optimization>
+      <method>MILP</method>
+      <purpose>
+        Strong classical baseline for comparison with QAOA.
+      </purpose>
+    </classical_optimization>
+
+    <data>
+      <default>Synthetic reproducible dataset</default>
+      <format>CSV/JSON</format>
+    </data>
+
+  </technology_stack>
+
+
+  <data_model>
+
+    <area_fields>
+      <field>area_id</field>
+      <field>population</field>
+      <field>population_density</field>
+      <field>current_cases</field>
+      <field>recent_case_growth</field>
+      <field>mobility_index</field>
+      <field>contact_intensity</field>
+      <field>latitude</field>
+      <field>longitude</field>
+      <field>outbreak_indicators</field>
+    </area_fields>
+
+    <facility_fields>
+      <field>facility_id</field>
+      <field>area_id</field>
+      <field>capacity</field>
+      <field>deployment_cost</field>
+      <field>service_radius</field>
+      <field>accessibility_score</field>
+      <field>latitude</field>
+      <field>longitude</field>
+      <field>feasible</field>
+    </facility_fields>
+
+    <network_fields>
+      <field>source_area</field>
+      <field>target_area</field>
+      <field>mobility_weight</field>
+      <field>contact_weight</field>
+      <field>travel_distance</field>
+    </network_fields>
+
+  </data_model>
+
+
+  <machine_learning_module>
+
+    <purpose>
+      Estimate the epidemic risk of each geographical area.
+    </purpose>
+
+    <input_features>
+      population,
+      population_density,
+      current_cases,
+      recent_case_growth,
+      mobility_index,
+      contact_intensity
+    </input_features>
+
+    <output>
+      normalized_risk_score
+    </output>
+
+    <example>
+      Area A01 → 0.91 → High Risk
+      Area A02 → 0.47 → Medium Risk
+      Area A03 → 0.18 → Low Risk
+    </example>
+
+    <important>
+      Risk prediction and facility optimization are separate modules.
+    </important>
+
+  </machine_learning_module>
+
+
+  <network_module>
+
+    <representation>
+      Represent the city as a weighted graph.
+    </representation>
+
+    <nodes>
+      Geographical areas.
+    </nodes>
+
+    <edges>
+      Mobility/contact relationships between areas.
+    </edges>
+
+    <metrics>
+      weighted_degree,
+      centrality,
+      neighboring_population,
+      risk_weighted_connectivity,
+      facility_to_area_distance
+    </metrics>
+
+    <purpose>
+      Ensure the optimizer considers how epidemic risk propagates through
+      connected areas rather than only selecting locations with high local
+      risk.
+    </purpose>
+
+  </network_module>
+
+
+  <facility_optimization>
+
+    <decision_variables>
+      For N eligible facilities:
+      x_i ∈ {0,1}
+    </decision_variables>
+
+    <meaning>
+      x_i = 1 → facility i is selected.
+      x_i = 0 → facility i is not selected.
+    </meaning>
+
+    <constraint>
+      Select exactly five facilities:
+      Σx_i = 5
+    </constraint>
+
+    <maximize>
+      risk_weighted_coverage,
+      population_coverage,
+      network_coverage,
+      accessibility
+    </maximize>
+
+    <minimize>
+      travel_distance,
+      deployment_cost
+    </minimize>
+
+    <configurable_weights>
+      risk_weight,
+      population_weight,
+      network_weight,
+      accessibility_weight,
+      distance_weight,
+      cost_weight
+    </configurable_weights>
+
+  </facility_optimization>
+
+
+  <qubo>
+
+    <definition>
+      QUBO means Quadratic Unconstrained Binary Optimization.
+      It is the mathematical representation used before applying QAOA.
+      QUBO itself is not quantum annealing.
+    </definition>
+
+    <constraint_penalty>
+      P * (Σx_i - 5)^2
+    </constraint_penalty>
+
+    <conceptual_objective>
+      Q(x) =
+      -Coverage(x)
+      + λ1 * TravelCost(x)
+      + λ2 * DeploymentCost(x)
+      + P * (Σx_i - 5)^2
+    </conceptual_objective>
+
+    <requirements>
+      Generate the QUBO programmatically from the current scenario.
+      Do not hard-code a sample matrix.
+      Make all major weights configurable.
+      Log the final QUBO size and relevant coefficients for experiments.
+    </requirements>
+
+  </qubo>
+
+
+  <qaoa>
+
+    <algorithm>
+      Quantum Approximate Optimization Algorithm
+    </algorithm>
+
+    <implementation>
+      Use Qiskit and Qiskit Aer.
+    </implementation>
+
+    <flow>
+      QUBO
+      →
+      Ising-compatible cost representation
+      →
+      QAOA circuit
+      →
+      parameter optimization
+      →
+      measurement
+      →
+      bitstring samples
+      →
+      best feasible solution
+    </flow>
+
+    <display_results>
+      qaoa_depth,
+      beta_parameters,
+      gamma_parameters,
+      measurement_counts,
+      probability_distribution,
+      best_bitstring,
+      objective_value
+    </display_results>
+
+    <simulation_strategy>
+      Start with small candidate sets such as 8–12 facilities.
+      Test 16 or larger only if simulator performance permits.
+    </simulation_strategy>
+
+    <feasibility>
+      The application must verify that the final bitstring satisfies the
+      exactly-five-facilities constraint.
+      Use sufficiently strong penalty terms and/or select the best feasible
+      sampled bitstring.
+      Any repair strategy must be explicitly documented.
+    </feasibility>
+
+  </qaoa>
+
+
+  <classical_baseline>
+
+    <method>MILP</method>
+
+    <requirements>
+      Use exactly the same:
+      input data,
+      candidate facilities,
+      objective,
+      weights,
+      constraints.
+    </requirements>
+
+    <metrics>
+      objective_value,
+      population_coverage,
+      high_risk_coverage,
+      average_travel_distance,
+      maximum_travel_distance,
+      deployment_cost,
+      constraint_violations,
+      runtime
+    </metrics>
+
+    <purpose>
+      Establish a scientifically meaningful classical reference.
+    </purpose>
+
+  </classical_baseline>
+
+
+  <user_interface>
+
+    <design_goal>
+      Make the UI feel like an epidemic-response command center.
+      The interface must visually explain what happens from raw facilities
+      to the final optimized facility set.
+    </design_goal>
+
+    <page number="1" name="Overview">
+
+      <show>
+        total_population,
+        current_cases,
+        high_risk_area_percentage,
+        total_facilities,
+        candidate_facilities,
+        facilities_to_select
+      </show>
+
+      <visual>
+        Main interactive city map/network.
+      </visual>
+
+    </page>
+
+
+    <page number="2" name="All Facilities">
+
+      <purpose>
+        Show the complete initial problem before optimization.
+      </purpose>
+
+      <show>
+        every possible facility,
+        location,
+        capacity,
+        deployment_cost,
+        accessibility
+      </show>
+
+      <map>
+        Display all facilities as candidate markers.
+        Display epidemic risk on surrounding areas.
+      </map>
+
+    </page>
+
+
+    <page number="3" name="Risk and Network">
+
+      <show>
+        ML risk scores,
+        risk categories,
+        mobility/contact network,
+        network metrics
+      </show>
+
+      <visualization>
+        High-risk areas should be visually distinct.
+        Mobility/contact edges should be visible.
+      </visualization>
+
+    </page>
+
+
+    <page number="4" name="Candidate Facilities">
+
+      <purpose>
+        Show the facilities that remain eligible after classical analysis.
+      </purpose>
+
+      <important>
+        Label these as Candidate/Eligible Facilities, not final selected
+        facilities.
+      </important>
+
+      <show>
+        eligible facilities,
+        filtered facilities,
+        reason for filtering,
+        facility scores
+      </show>
+
+    </page>
+
+
+    <page number="5" name="Optimization">
+
+      <controls>
+        number_of_facilities = 5,
+        risk_weight,
+        population_weight,
+        network_weight,
+        accessibility_weight,
+        distance_weight,
+        cost_weight
+      </controls>
+
+      <methods>
+        Classical MILP
+        QAOA
+      </methods>
+
+      <actions>
+        Run Classical Optimization
+        Run QAOA
+        Run Both
+      </actions>
+
+    </page>
+
+
+    <page number="6" name="Quantum QAOA">
+
+      <show>
+        QAOA circuit information,
+        number_of_qubits,
+        QAOA_depth,
+        beta_parameters,
+        gamma_parameters,
+        measurement_counts,
+        probability_distribution,
+        sampled_bitstrings,
+        best_feasible_bitstring
+      </show>
+
+      <bitstring_example>
+        0010010100010001
+      </bitstring_example>
+
+      <mapping>
+        Each bit corresponds to one eligible facility.
+        Example:
+        bit 1 → F01
+        bit 0 → F02
+        bit 1 → F03
+      </mapping>
+
+      <visualization>
+        Display a ranked bar chart of the most frequently measured
+        bitstrings and highlight the best feasible solution.
+      </visualization>
+
+    </page>
+
+
+    <page number="7" name="Final Results">
+
+      <show>
+        final five facilities,
+        population coverage,
+        high_risk_coverage,
+        average_travel_distance,
+        maximum_travel_distance,
+        deployment_cost,
+        objective_value,
+        feasibility
+      </show>
+
+      <map>
+        Highlight the five final facilities.
+        Show their service/coverage regions.
+        Show covered and poorly covered high-risk areas.
+      </map>
+
+      <comparison>
+        Classical MILP vs QAOA.
+      </comparison>
+
+    </page>
+
+  </user_interface>
+
+
+  <visualization>
+
+    <main_map>
+      The interactive map/network is the centerpiece of the application.
+    </main_map>
+
+    <legend>
+      High risk = red
+      Medium risk = orange
+      Low risk = green
+      Candidate facility = circle
+      Selected facility = highlighted/star marker
+      Mobility/contact = weighted edge
+    </legend>
+
+    <required_visualizations>
+      epidemic risk map,
+      contact/mobility network,
+      facility locations,
+      candidate facilities,
+      selected facilities,
+      facility coverage,
+      QAOA bitstring distribution,
+      classical-vs-QAOA metrics
+    </required_visualizations>
+
+    <charts>
+      facility risk ranking,
+      population coverage comparison,
+      high-risk coverage comparison,
+      travel distance comparison,
+      cost comparison,
+      objective value comparison,
+      QAOA bitstring frequency
+    </charts>
+
+    <interaction>
+      Clicking a facility should display its details.
+      Clicking an area should display epidemic and risk information.
+      Selecting a final facility should show the areas it serves.
+    </interaction>
+
+  </visualization>
+
+
+  <api>
+
+    <endpoint method="POST" path="/api/scenario/generate">
+      Generate a reproducible synthetic epidemic scenario.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/risk/predict">
+      Run the ML risk model.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/network/analyze">
+      Construct and analyze the mobility/contact network.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/facilities/analyze">
+      Calculate facility metrics and candidate eligibility.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/optimization/classical">
+      Run the classical MILP optimization.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/optimization/qubo">
+      Generate the QUBO from the current optimization configuration.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/optimization/qaoa">
+      Run QAOA using Qiskit/Aer.
+    </endpoint>
+
+    <endpoint method="POST" path="/api/optimization/compare">
+      Compare classical and QAOA solutions.
+    </endpoint>
+
+    <endpoint method="GET" path="/api/results/{experiment_id}">
+      Retrieve experiment results.
+    </endpoint>
+
+  </api>
+
+
+  <project_structure>
+
+    <structure>
+      quanta-epidemic-resources-allocation/
+
+      frontend/
+        src/
+          components/
+          pages/
+          maps/
+          charts/
+          services/
+          hooks/
+          styles/
+
+      backend/
+        app/
+          api/
+          ml/
+          graph/
+          facilities/
+          optimization/
+            qubo.py
+            qaoa.py
+            classical.py
+          simulation/
+          models/
+          utils/
+
+        tests/
+
+      data/
+        raw/
+        processed/
+        synthetic/
+
+      experiments/
+
+      README.md
+      requirements.txt
+      package.json
+    </structure>
+
+  </project_structure>
+
+
+  <sample_scenario>
+
+    <setup>
+      Generate 20 geographical areas.
+      Generate 15–20 candidate facilities.
+      Require exactly 5 facilities to be selected.
+    </setup>
+
+    <example_risk>
+      A01 = 0.91
+      A02 = 0.73
+      A03 = 0.22
+      A04 = 0.86
+      A05 = 0.41
+    </example_risk>
+
+    <example_facilities>
+      F01,
+      F02,
+      F03,
+      F04,
+      F05,
+      F06,
+      F07,
+      F08,
+      F09,
+      F10,
+      F11,
+      F12,
+      F13,
+      F14,
+      F15
+    </example_facilities>
+
+    <final_example>
+      QAOA may produce a feasible solution such as:
+      F03, F06, F10, F13, F15
+    </final_example>
+
+    <important>
+      The example result must not be hard-coded.
+      It must be calculated by the implemented optimization pipeline.
+    </important>
+
+  </sample_scenario>
+
+
+  <experiment_design>
+
+    <purpose>
+      Evaluate how QAOA behaves as the facility-selection problem grows.
+    </purpose>
+
+    <problem_sizes>
+      8,
+      10,
+      12,
+      16
+    </problem_sizes>
+
+    <repeat>
+      Run multiple random seeds where practical.
+    </repeat>
+
+    <record>
+      candidate_count,
+      selected_count,
+      qaoa_depth,
+      qaoa_parameters,
+      objective_value,
+      best_feasible_solution,
+      classical_objective,
+      population_coverage,
+      high_risk_coverage,
+      travel_distance,
+      cost,
+      runtime
+    </record>
+
+    <analysis>
+      Calculate relative objective quality and feasibility.
+      Clearly distinguish simulator runtime from actual quantum hardware
+      runtime.
+    </analysis>
+
+  </experiment_design>
+
+
+  <error_handling>
+
+    <requirement>
+      Handle invalid data, missing fields, infeasible scenarios, QUBO
+      construction errors, QAOA failures, simulator timeouts and API errors.
+    </requirement>
+
+    <ui>
+      Show meaningful error messages instead of generic failures.
+    </ui>
+
+    <loading>
+      Display progress states for ML, network analysis, QUBO generation,
+      classical optimization and QAOA.
+    </loading>
+
+  </error_handling>
+
+
+  <reproducibility>
+
+    <requirements>
+      Use configurable random seeds.
+      Store scenario configuration.
+      Store optimization weights.
+      Store QAOA configuration.
+      Store experiment results.
+    </requirements>
+
+    <purpose>
+      A judge should be able to run the same scenario and reproduce the
+      displayed result.
+    </purpose>
+
+  </reproducibility>
+
+
+  <hackathon_demo>
+
+    <step number="1">
+      Open the dashboard and show the epidemic situation.
+    </step>
+
+    <step number="2">
+      Show all 15–20 possible facilities on the map.
+    </step>
+
+    <step number="3">
+      Run classical ML risk analysis.
+    </step>
+
+    <step number="4">
+      Display high-risk areas and the mobility/contact network.
+    </step>
+
+    <step number="5">
+      Show candidate/eligible facilities after feasibility analysis.
+    </step>
+
+    <step number="6">
+      Set the required number of facilities to 5.
+    </step>
+
+    <step number="7">
+      Run classical MILP.
+    </step>
+
+    <step number="8">
+      Run QAOA using Qiskit Aer.
+    </step>
+
+    <step number="9">
+      Display QAOA measurement probabilities and bitstrings.
+    </step>
+
+    <step number="10">
+      Decode the best feasible bitstring into facility IDs.
+    </step>
+
+    <step number="11">
+      Highlight the final five facilities on the map.
+    </step>
+
+    <step number="12">
+      Show the areas covered by the selected facilities.
+    </step>
+
+    <step number="13">
+      Display classical-vs-QAOA comparison.
+    </step>
+
+    <step number="14">
+      Explain the results honestly without claiming unsupported quantum
+      advantage.
+    </step>
+
+  </hackathon_demo>
+
+
+  <novelty>
+
+    <statement>
+      Epidemic facility placement is an established classical optimization
+      problem. The novelty of this prototype is not inventing facility
+      placement itself.
+    </statement>
+
+    <contribution>
+      The project combines classical epidemic-risk prediction and
+      network analysis with a QUBO representation of constrained facility
+      allocation and evaluates QAOA against a classical optimization
+      baseline using the same problem.
+    </contribution>
+
+    <points>
+      Risk-aware facility optimization.
+      Network-aware epidemic response.
+      Separation of ML prediction and combinatorial optimization.
+      QUBO formulation of the resource-allocation problem.
+      QAOA implementation using Qiskit.
+      Interactive visualization of quantum optimization.
+      Classical-vs-quantum benchmarking.
+    </points>
+
+  </novelty>
+
+
+  <future_scalability>
+
+    <current>
+      Qiskit Aer simulator and small problem sizes.
+    </current>
+
+    <future>
+      Larger candidate networks.
+      More complex resource allocation.
+      Multiple facility types.
+      Capacity allocation.
+      Multiple epidemic scenarios.
+      Real mobility datasets.
+      Noise-aware experiments.
+      Real quantum hardware when practical.
+    </future>
+
+    <vision>
+      The same mathematical optimization model should remain usable while
+      replacing the simulator with future quantum hardware or other quantum
+      optimization backends.
+    </vision>
+
+  </future_scalability>
+
+
+  <limitations>
+
+    <item>
+      Simulator-based QAOA does not demonstrate real-world quantum advantage.
+    </item>
+
+    <item>
+      Small instances may be solved more effectively by classical methods.
+    </item>
+
+    <item>
+      QAOA performance depends on circuit depth, parameter optimization,
+      problem structure and noise.
+    </item>
+
+    <item>
+      ML performance depends on the quality and realism of the training data.
+    </item>
+
+    <item>
+      Synthetic epidemic data demonstrates the software pipeline but does
+      not validate real epidemiological predictions.
+    </item>
+
+    <item>
+      The system is a hackathon research prototype and decision-support tool,
+      not a clinical or public-health directive.
+    </item>
+
+  </limitations>
+
+
+  <development_order>
+
+    <phase number="1">
+      Create synthetic epidemic, area, network and facility data.
+    </phase>
+
+    <phase number="2">
+      Implement ML/risk scoring.
+    </phase>
+
+    <phase number="3">
+      Implement NetworkX mobility/contact graph.
+    </phase>
+
+    <phase number="4">
+      Implement facility coverage and feasibility calculations.
+    </phase>
+
+    <phase number="5">
+      Implement classical MILP baseline.
+    </phase>
+
+    <phase number="6">
+      Implement programmatic QUBO construction.
+    </phase>
+
+    <phase number="7">
+      Implement QAOA using Qiskit/Aer.
+    </phase>
+
+    <phase number="8">
+      Implement metric comparison.
+    </phase>
+
+    <phase number="9">
+      Build interactive map/network visualization.
+    </phase>
+
+    <phase number="10">
+      Build QAOA visualization.
+    </phase>
+
+    <phase number="11">
+      Connect frontend and backend.
+    </phase>
+
+    <phase number="12">
+      Add validation, reproducibility, error handling and experiment logging.
+    </phase>
+
+    <phase number="13">
+      Polish the hackathon demo and presentation flow.
+    </phase>
+
+  </development_order>
+
+
+  <final_acceptance_criteria>
+
+    <criterion>
+      The application can generate a complete epidemic scenario without
+      requiring external data.
+    </criterion>
+
+    <criterion>
+      The ML/risk layer produces risk scores for areas.
+    </criterion>
+
+    <criterion>
+      A mobility/contact network is constructed and visualized.
+    </criterion>
+
+    <criterion>
+      All candidate facilities are visible before optimization.
+    </criterion>
+
+    <criterion>
+      Candidate/eligible facilities are displayed after classical analysis.
+    </criterion>
+
+    <criterion>
+      The system creates a real QUBO from the optimization configuration.
+    </criterion>
+
+    <criterion>
+      QAOA is genuinely executed through Qiskit/Aer.
+    </criterion>
+
+    <criterion>
+      The result is decoded into actual facility IDs.
+    </criterion>
+
+    <criterion>
+      Exactly five facilities are selected by default.
+    </criterion>
+
+    <criterion>
+      The same problem is solved using a classical MILP baseline.
+    </criterion>
+
+    <criterion>
+      Classical and QAOA results are compared using meaningful metrics.
+    </criterion>
+
+    <criterion>
+      The final five facilities are highlighted on an interactive map.
+    </criterion>
+
+    <criterion>
+      QAOA bitstring probabilities are visualized.
+    </criterion>
+
+    <criterion>
+      The entire process can be demonstrated live from input to final result.
+    </criterion>
+
+    <criterion>
+      The project does not make unsupported claims about quantum advantage.
+    </criterion>
+
+  </final_acceptance_criteria>
+
+
+  <final_project_statement>
+    Quanta Epidemic Resources Allocation is a hybrid classical-quantum
+    decision-support system that uses ML and network analytics to quantify
+    epidemic risk, formulates limited-facility placement as a QUBO, and uses
+    QAOA in Qiskit to identify a high-quality set of five facilities while
+    benchmarking the result against classical optimization.
+  </final_project_statement>
+
+</project_build_prompt>
